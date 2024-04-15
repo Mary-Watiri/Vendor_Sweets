@@ -9,40 +9,6 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
-
-# class Sweet(db.Model, SerializerMixin):
-#     __tablename__ = 'sweets'
-
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String)
-
-#     # Relationship with Vendor through VendorSweet (Many-to-Many)
-#     vendor_sweets = db.relationship(
-#         "VendorSweet",
-#         secondary='vendor_sweets',
-#         backref="sweets",
-#     )
-
-#     # Limit recursion depth during serialization (optional)
-#     def to_dict(self):
-#         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-#     def __repr__(self):
-#         return f'<Sweet {self.id} - {self.name}>'
-
-
-# class Vendor(db.Model, SerializerMixin):
-#     __tablename__ = 'vendors'
-
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String)
-
-#     # Relationship with Sweet through VendorSweet (Many-to-Many)
-#     vendor_sweets = db.relationship(
-#         "Sweet",
-#         secondary='vendor_sweets',
-#         backref="vendors",
-#     )
 class Sweet(db.Model, SerializerMixin):
     __tablename__ = 'sweets'
 
