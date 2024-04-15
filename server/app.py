@@ -61,31 +61,39 @@ def get_sweet(id):
 @app.route('/vendor_sweets', methods=['POST'])
 def create_vendor_sweet():
     data = request.get_json()
+    if not data or 'price' not in data or data['price'] < 0:
+        return jsonify({'errors': ['validation errors']}), 400
+    
     sweet_id = data.get('sweet_id')
     vendor_id = data.get('vendor_id')
-    price = data.get('price')
 
-    if not (sweet_id and vendor_id and price):
-        return make_response(jsonify({'error': 'Missing required fields'}), 400)
+    sweet = Sweet.query.get(sweet_id)
+    vendor = Vendor.query.get(vendor_id)
 
-    try:
-        vendor_sweet = VendorSweet(sweet_id=sweet_id, vendor_id=vendor_id, price=price)
-        db.session.add(vendor_sweet)
-        db.session.commit()
-        sweet = Sweet.query.get(sweet_id)
-        vendor = Vendor.query.get(vendor_id)  
-        return jsonify({
-            'id': vendor_sweet.id,
-            'sweet_id': sweet_id,
-            'vendor_id': vendor_id,
-            'price': price,
-            'sweet': {'id': sweet.id, 'name': sweet.name},
-            'vendor': {'id': vendor.id, 'name': vendor.name}  
-        }), 201
-    except IntegrityError:
-        db.session.rollback()
-        return make_response(jsonify({'error': 'Integrity error'}), 404)
+    if not sweet:
+        return jsonify({'errors': ['Sweet not found']}), 400
+    
+    if not vendor:
+        return jsonify({'errors': ['Vendor not found']}), 400
 
+    vendor_sweet = VendorSweet(price=data['price'], sweet=sweet, vendor=vendor)
+    db.session.add(vendor_sweet)
+    db.session.commit()
+
+    return jsonify({
+        'id': vendor_sweet.id,
+        'price': vendor_sweet.price,
+        'sweet': {
+            'id': sweet.id,
+            'name': sweet.name
+        },
+        'sweet_id': sweet.id,
+        'vendor': {
+            'id': vendor.id,
+            'name': vendor.name
+        },
+        'vendor_id': vendor.id
+    }), 201
 
 @app.route('/vendor_sweets/<int:id>', methods=['DELETE'])
 def delete_vendor_sweet(id):
